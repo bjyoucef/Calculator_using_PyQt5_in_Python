@@ -4,11 +4,10 @@ This is a simple calculator application built using PyQt5 in Python.
 ##   Description
 This calculator application allows users to perform basic arithmetic operations such as addition, subtraction, multiplication, and division. It provides a graphical user interface (GUI) for ease of use.
 
-![alt text](http://url/to/img.png)
+![alt text](https://github.com/bjyoucef/Calculator_using_PyQt5_in_Python/blob/master/Gui/1.jpg)
+![alt text](https://github.com/bjyoucef/Calculator_using_PyQt5_in_Python/blob/master/Gui/2.jpg)
 
-I think you can link directly to the raw version of an image if it's stored in your repository. i.e.
 
-![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
 
 ## Features
 
