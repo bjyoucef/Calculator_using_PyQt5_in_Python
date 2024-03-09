@@ -1,9 +1,7 @@
 # pyuic5 -x interfaceCal.ui -o ui_interfaceCal.py
 # pyrcc5 ressources.qrc -o ressources_rc.py
 import sys
-
 from PyQt5.QtWidgets import QApplication, QMainWindow
-
 from Gui.ui_interfaceCal import Ui_MainWindow
 
 
@@ -17,30 +15,40 @@ class MainWindow(QMainWindow):
     def setupCalculator(self):
         self.calculator = Calculator(self.ui)
 
-
-class Calculator():
-    def __init__(self, ui):
-        self.ui = ui
-        self.first_number = ''
-        self.second_number = ''
-        self.result = ''
-        self.operator_selected = False
-        self.equation_completed = False
-        self.ui.calcLabel.setText('')
-
-        # Connect number buttons dynamically
         for i in range(10):
             button = getattr(self.ui, f"btn{i}")
-            button.clicked.connect(lambda _, num=str(i): self.func_button_num(num))
+            button.clicked.connect(lambda _, num=str(i): self.calculator.func_button_num(num))
 
-        self.ui.btnAdd.clicked.connect(lambda: self.func_button_flag('+'))
-        self.ui.btnMultiply.clicked.connect(lambda: self.func_button_flag('*'))
-        self.ui.btnDivide.clicked.connect(lambda: self.func_button_flag('/'))
+        self.ui.btnAdd.clicked.connect(lambda: self.calculator.func_button_flag('+'))
+        self.ui.btnMultiply.clicked.connect(lambda: self.calculator.func_button_flag('*'))
+        self.ui.btnDivide.clicked.connect(lambda: self.calculator.func_button_flag('/'))
+        self.ui.btnSubtract.clicked.connect(lambda: self.calculator.func_button_flag('-'))
 
-        self.ui.btnSubtract.clicked.connect(self.func_button_subtract)
-        self.ui.btnPoint.clicked.connect(self.func_button_dot)
-        self.ui.btnC.clicked.connect(self.func_button_cls)
-        self.ui.btnEvaluate.clicked.connect(self.evaluate_expression)
+        self.ui.btnPoint.clicked.connect(self.calculator.func_button_dot)
+        self.ui.btnC.clicked.connect(self.calculator.clear)
+        self.ui.btnEvaluate.clicked.connect(self.calculator.evaluate)
+
+
+class Calculator:
+
+    def __init__(self, ui):
+        self.result = None
+        self.operator_selected = None
+        self.operator = None
+        self.equation_completed = None
+        self.first_number = None
+        self.second_number = None
+        self.ui = ui
+        self.clear()
+
+    def clear(self):
+        self.equation_completed = False
+        self.operator_selected = False
+        self.first_number = ''
+        self.second_number = ''
+        self.operator = ''
+        self.result = ''
+        self.ui.calcLabel.setText('')
 
     def func_calcLabel(self):
         self.ui.calcLabel.setText(f"{self.first_number} {self.operator} {self.second_number}")
@@ -48,29 +56,30 @@ class Calculator():
     def func_button_num(self, num):
         if not self.equation_completed:
             if not self.operator_selected:
-                self.first_number += num
-                self.ui.calcLabel.setText(self.first_number.lstrip('0') or '0')
+                if "." not in self.first_number:
+                    self.first_number += num
+                    self.first_number = self.first_number.lstrip('0')
+                    self.ui.calcLabel.setText(self.first_number or '0')
+                else:
+                    self.first_number += num
+                    self.ui.calcLabel.setText(self.first_number)
+
             else:
-                self.second_number += num
+                if "." not in self.second_number:
+                    self.second_number += num
+                    self.second_number = self.second_number.lstrip('0')
+                else:
+                    self.second_number += num
                 self.func_calcLabel()
         else:
             if not self.operator_selected:
-                self.first_number += num
-                self.ui.calcLabel.setText(self.first_number.lstrip('0') or '0')
-                self.equation_completed = False
-
-    def func_button_dot(self):
-        if not self.equation_completed:
-            if not self.operator_selected and "." not in self.first_number:
-                self.first_number += "." if self.first_number else "0."
-                self.ui.calcLabel.setText(self.first_number)
-            elif "." not in self.second_number:
-                self.second_number += "." if self.second_number else "0."
-                self.func_calcLabel()
-        else:
-            if not self.operator_selected and "." not in self.first_number:
-                self.first_number += "." if self.first_number else "0."
-                self.ui.calcLabel.setText(self.first_number)
+                if "." not in self.first_number:
+                    self.first_number += num
+                    self.first_number = self.first_number.lstrip('0')
+                    self.ui.calcLabel.setText(self.first_number or '0')
+                else:
+                    self.first_number += num
+                    self.ui.calcLabel.setText(self.first_number)
                 self.equation_completed = False
 
     def func_button_flag(self, operator):
@@ -93,6 +102,34 @@ class Calculator():
         self.operator_selected = True
         self.func_calcLabel()
         self.equation_completed = False
+
+    def func_button_dot(self):
+        if not self.equation_completed:
+            if not self.operator_selected:
+                if "." not in self.first_number:
+                    if self.first_number:
+                        self.first_number += "."
+                    else:
+                        self.first_number = "0."
+                    self.ui.calcLabel.setText(self.first_number)
+            else:
+                if "." not in self.second_number:
+                    if self.second_number:
+                        self.second_number += "."
+                    else:
+                        self.second_number = "0."
+                    self.func_calcLabel()
+
+        else:
+            if not self.operator_selected:
+                pass
+            else:
+                if "." not in self.second_number:
+                    if self.second_number:
+                        self.second_number += "."
+                    else:
+                        self.second_number = "0."
+                    self.func_calcLabel()
 
     def func_button_subtract(self):
         if not self.equation_completed:
@@ -117,7 +154,7 @@ class Calculator():
                 self.second_number = "-"
                 self.func_calcLabel()
 
-    def evaluate_expression(self):
+    def evaluate(self):
         try:
             if self.operator_selected:
                 self.result = str(eval(f"{self.first_number} {self.operator} {self.second_number}"))
@@ -143,7 +180,6 @@ class Calculator():
         self.operator_selected = False
         self.equation_completed = False
         self.ui.calcLabel.setText('')
-
 
 
 if __name__ == "__main__":
