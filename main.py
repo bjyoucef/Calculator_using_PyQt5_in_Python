@@ -25,6 +25,7 @@ class MainWindow(QMainWindow):
         self.ui.btnSubtract.clicked.connect(lambda: self.calculator.func_button_flag('-'))
 
         self.ui.btnPoint.clicked.connect(self.calculator.func_button_dot)
+        self.ui.btnAC.clicked.connect(self.calculator.clear_all)
         self.ui.btnC.clicked.connect(self.calculator.clear)
         self.ui.btnEvaluate.clicked.connect(self.calculator.evaluate)
 
@@ -39,9 +40,9 @@ class Calculator:
         self.first_number = None
         self.second_number = None
         self.ui = ui
-        self.clear()
+        self.clear_all()
 
-    def clear(self):
+    def clear_all(self):
         self.equation_completed = False
         self.operator_selected = False
         self.first_number = ''
@@ -49,6 +50,23 @@ class Calculator:
         self.operator = ''
         self.result = ''
         self.ui.calcLabel.setText('')
+        self.ui.textEdit_HC.clear()
+
+
+
+    def clear(self):
+        if self.equation_completed:
+            return
+        if self.second_number:
+            self.second_number = self.second_number[:-1]
+            self.func_calcLabel()
+        elif self.operator_selected:
+            self.operator_selected = False
+            self.operator = ''
+            self.func_calcLabel()
+        elif self.first_number:
+            self.first_number = self.first_number[:-1]
+            self.ui.calcLabel.setText(self.first_number.lstrip('0') or '0')
 
     def func_calcLabel(self):
         self.ui.calcLabel.setText(f"{self.first_number} {self.operator} {self.second_number}")
